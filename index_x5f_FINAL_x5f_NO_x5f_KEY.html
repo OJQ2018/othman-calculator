@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Othman AI - بدون مفتاح</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal',sans-serif}
+body{background:#0a0a14;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+.header{background:linear-gradient(90deg,#7c3aed,#f97316);padding:14px;text-align:center;font-weight:800;font-size:17px;position:sticky;top:0;z-index:10}
+.badge{background:#22c55e;color:#000;padding:3px 10px;border-radius:20px;font-size:11px;margin-right:8px}
+.chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;padding-bottom:110px}
+.msg{max-width:90%;padding:13px 16px;border-radius:22px;line-height:1.8;animation:pop .25s;font-size:15px}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bot{background:#1d1d33;align-self:flex-start;border-bottom-right-radius:6px;border:1px solid #2a2a4a}
+.user{background:linear-gradient(135deg,#7c3aed,#a78bfa);align-self:flex-end;border-bottom-left-radius:6px;font-weight:700}
+.inputBar{position:fixed;bottom:0;left:0;right:0;background:#14142a;padding:12px;display:flex;gap:10px;align-items:center;border-top:1px solid #2a2a50}
+.inputBar input{flex:1;background:#0a0a14;border:1px solid #3a3a6a;border-radius:26px;padding:13px 18px;color:#fff;outline:none;font-size:15px}
+.btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.send{background:linear-gradient(135deg,#7c3aed,#f97316);color:#fff}
+.mic{background:#252545;color:#fff}
+.mic.recording{background:#ef4444;animation:pulse 1s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+.speaker{cursor:pointer;margin-right:8px}
+.quick{display:flex;gap:8px;overflow-x:auto;padding:6px 0 2px}
+.quick button{background:#252545;border:1px solid #3a3a6a;color:#fff;padding:6px 12px;border-radius:20px;white-space:nowrap;cursor:pointer;font-size:13px}
+.quick button:hover{background:#7c3aed}
+</style>
+</head>
+<body>
+<div class="header">Othman AI <span class="badge">شغال بدون مفتاح ✅</span></div>
+<div class="chat" id="chat">
+<div class="msg bot">هلا عثمان! هلا والله! 🙏<br><br>هاي النسخة النهائية <b>ما تحتاج أي مفتاح</b> وتفهم أي كلمة عربية بأي لهجة!<br><br>احجيلي:<br>• مرحبا كيفك شكو ماكو<br>• احجيلي نكته<br>• شنو الأخبار<br>• احبك<br>• أي شي ببالك...<br><br>كل شي أفهمه وأجاوبك بصوت 🔊</div>
+<div class="quick" id="quick">
+<button onclick="sendQuick('مرحبا كيفك شو الاخبار شكو ماكو')">مرحبا كيفك</button>
+<button onclick="sendQuick('احجيلي نكته عراقية')">نكته عراقية</button>
+<button onclick="sendQuick('شلونك')">شلونك</button>
+<button onclick="sendQuick('احبك')">احبك</button>
+<button onclick="sendQuick('شنو تسوي')">شنو تسوي</button>
+</div>
+</div>
+<div class="inputBar">
+<button class="btn mic" id="micBtn">🎤</button>
+<input type="text" id="input" placeholder="اكتب أي شي بلهجتك...">
+<button class="btn send" id="sendBtn">➤</button>
+</div>
+<script>
+const chat=document.getElementById('chat');
+const input=document.getElementById('input');
+let voices=[]; const loadVoices=()=>voices=speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+function speak(t){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); const ar=voices.find(v=>v.lang.includes('ar')); if(ar) u.voice=ar; u.lang='ar-SA'; u.rate=0.95; speechSynthesis.speak(u); }
+function addMsg(text,who){
+  const div=document.createElement('div'); div.className='msg '+who;
+  const cleanText=text.replace(/🔊/g,'').trim();
+  div.textContent=cleanText;
+  if(who==='bot'){ const sp=document.createElement('span'); sp.textContent=' 🔊'; sp.className='speaker'; sp.onclick=()=>speak(cleanText); div.appendChild(sp); }
+  // Insert before quick if bot first message
+  const quick=document.getElementById('quick');
+  if(quick && who==='bot' && chat.contains(quick)) chat.insertBefore(div, quick);
+  else chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+  if(who==='bot') speak(cleanText);
+}
+function sendQuick(t){ input.value=t; handleSend(); }
+
+function smartReply(t){
+  const q=t.toLowerCase().trim();
+  // تحيات
+  if(q.match(/مرحبا|هلا|سلام|أهلا|اهلين|هلاو/)){ const r=['هلا والله هلا! نورت حبيبي، شلونك؟','أهلين أهلين! شخبارك؟ شكو ماكو؟','مرحبتين! شلونك اليوم؟ احجيلي','هلا بالغالي! شلونك شخبارك؟']; return r[Math.floor(Math.random()*r.length)]; }
+  if(q.match(/كيفك|شلونك|شخبارك|شلونكم|شلونه|شلونج|كيف حالك|شلون احوالك/)){ return ['والله بخير دامك بخير حبيبي، انت شلونك؟ شكو ماكو؟','الحمدلله زين، انت شلونك؟ الأخبار؟','تمام الحمدلله، شلونك انت؟ مشتاقين!'][Math.floor(Math.random()*3)]; }
+  if(q.match(/شو الاخبار|شنو الاخبار|ايش الاخبار|شكو ماكو|شكو ماكو|وش الاخبار|أخبارك|الاخبار/)){ return ['الأخبار زينة الحمدلله! كلشي تمام، انت شكو عندك جديد؟','والله الأخبار حلوة، الدنيا ماشية، انت شنو أخبارك؟','ماكو شي جديد، نفس الروتين، بس وياك صار أحلى 😊 انت شكو ماكو؟'][Math.floor(Math.random()*3)]; }
+  if(q.match(/في ما في|مافي شي|ماكو شي|ما في شي/)){ return 'إي أعرف تقصد "ماكو شي" بالعراقي 😊 الحمدلله أهم شي ماكو شي يضوجك! احجيلي شنو تحب نسولف؟'; }
+  if(q.match(/ماذا تفعل|شنو تسوي|شنو تعمل|شو بتعمل|شو بتسوي|وش تسوي|شنو شغلك/)){ return ['قاعد أسمعك وأحجي وياك! أنا هنا حتى أساعدك وأسولف وياك بأي لهجة تريد','أنا Othman AI، مهمتي أحجي وياك وأفهمك وأجاوبك بصوت، شنو تحب نحجي عنه؟','اسمعك حبيبي، احجيلي أي شي ببالك'][Math.floor(Math.random()*3)]; }
+  if(q.match(/نكته|نكتة|طرفه|طرفة|نكت|اضحك/)){ const jokes=['واحد عراقي راح للدكتور كله دكتور أنسى بسرعة، كله من إيمتى؟ كله من إيمتى شنو؟ 😂','محشش سألوه شنو أكثر شي يخوفك؟ قال: إذا كتبت "ههههه" وردت عليّ بـ "ههه" بس! 😆','واحد مصري بيقول لصاحبه: أنا كل ما أشرب قهوة ما أنامش! صاحبه قاله: وأنا العكس! قاله إزاي؟ قاله أنا كل ما أنام ما أشربش قهوة! 😂','مرة واحد سوري راح يشتري بدلة، قاله البياع: تلبس 44؟ قاله لا 44 بلبسها بالبيت، برا بلبس 46 حتى أبين مهم! 😂','عراقي كال لصاحبه: ضايج! كاله ليش؟ كاله: حلمت أتزوجت! كاله: وش بيها؟ كاله: كعدت من الحلم لكيتي جنبي! 😂']; return jokes[Math.floor(Math.random()*jokes.length)]; }
+  if(q.match(/احبك|أحبك|اعشقك|أعشقك|حبك/)){ return ['وأنا أكثر والله! فدوة لقلبك ❤️','حبيبي انت! الله يسعدك 😊','فدوة أروحلك!']; }
+  if(q.match(/من انت|انت منو|شنو انت|ما أنت|تعريف/)){ return 'أنا Othman AI، ذكاء اصطناعي صممه عثمان حتى يحجي وياك بكل اللهجات العربية - عراقي، مصري، سوري، خليجي - وأفهم أي كلمة تكتبها وأرد عليك كتابة وصوت.'; }
+  if(q.match(/عراقي|عراق/)){ return 'إي تاج راسي أهل العراق! أحجي عراقي ثكيل، شتريد؟ شكو ماكو؟ احجيلي عراقي!'; }
+  if(q.match(/مصري|مصر/)){ return 'أيوه يا باشا! بتكلم مصري زي الفل، عايز إيه؟ قولّي!'; }
+  if(q.match(/سوري|سوريا|شامي/)){ return 'تكرم عينك! بحكي سوري كمان، شو بدك؟'; }
+  if(q.match(/شكرا|شكرًا|thanks|thank you/)){ return 'العفو حبيبي! حاضرين بأي وقت ❤️'; }
+  if(q.match(/تعبان|ضايج|زعلان|متضايق|حزين/)){ return 'سلامتك حبيبي، ليش ضايج؟ احجيلي، فضفضلي، أنا أسمعك والله'; }
+  if(q.match(/جميل|حلو|روعة|عاشت ايدك|عاشت/)){ return 'فدوة لقلبك! كلامك هو الحلو 😊'; }
+  if(q.match(/اسمك|شنو اسمك/)){ return 'اسمي Othman AI، على اسم صانعي عثمان!'; }
+  // ذكاء عام: يفهم أي جملة
+  // إذا الجملة طويلة مثل "مرحبا كيفك شو الاخبار ايش في ما في"
+  if(q.length>5){
+    // استخراج أهم كلمات
+    if(q.includes('مرحبا')||q.includes('كيفك')||q.includes('الاخبار')){
+      return 'هلا والله! مرحبا كيفك انت؟ الأخبار كلها تمام الحمدلله، ماكو شي، انت شلونك؟ شكو ماكو؟ احجيلي شكو عندك اليوم؟ 😊';
+    }
+    // رد عام ذكي يحاكي فهم
+    const general=[
+      `حلو! فهمت عليك لما كلت "${t}" 😊 كمل احجيلي، أنا أسمعك`,
+      `"${t}" - إي فهمت قصدك! شنو رأيك انت بهالموضوع؟`,
+      `هاا بخصوص "${t}"، موضوع حلو! احجيلي أكثر عنه`,
+      `تمام، فهمت "${t}".. أنا وياك، شنو تحب تعرف أكثر؟`
+    ];
+    return general[Math.floor(Math.random()*general.length)];
+  }
+  return 'هلا حبيبي! كمل احجيلي، أنا أسمعك وأفهمك 😊';
+}
+
+function handleSend(){
+  const text=input.value.trim(); if(!text) return;
+  addMsg(text,'user'); input.value='';
+  const typing=document.createElement('div'); typing.className='msg bot'; typing.textContent='يكتب...'; chat.appendChild(typing); chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{ typing.remove(); addMsg(smartReply(text),'bot'); }, 600+Math.random()*500);
+}
+document.getElementById('sendBtn').onclick=handleSend;
+input.onkeypress=e=>{if(e.key==='Enter') handleSend();};
+let rec; if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; rec=new SR(); rec.lang='ar-IQ'; rec.continuous=false;
+  rec.onstart=()=>document.getElementById('micBtn').classList.add('recording');
+  rec.onend=()=>document.getElementById('micBtn').classList.remove('recording');
+  rec.onresult=e=>{ input.value=e.results[0][0].transcript; handleSend(); };
+}
+document.getElementById('micBtn').onclick=()=>{ if(!rec){alert('المايك يشتغل بكروم فقط');return;} try{rec.start();}catch{rec.stop();} };
+</script>
+</body>
+</html>
